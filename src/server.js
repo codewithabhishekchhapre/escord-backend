@@ -15,7 +15,14 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
 // Serve static files from the "uploads" folder inside "src"
-app.use('/uploads', express.static(path.join(__dirname, 'src', 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')), (req, res, next) => {
+//      console.log(`Serving file: ${req.url}`);
+//      next();
+//    });
+//    console.log(path.join(__dirname, 'uploads'));
+
+// app.use('/uploads', express.static(path.join(__dirname, 'src', 'uploads')));
 app.get('/', (req, res) => {
      res.send("Hello Escort");
    });

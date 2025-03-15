@@ -1,7 +1,7 @@
 const Escort = require("../models/Escort");
 const { v4: uuidv4 } = require("uuid"); // Generate a unique ID for each escort
 
-const BASE_URL = "https://yourdomain.com"; // Change this to your actual domain
+const BASE_URL = process.env.BASE_URL; // Change this to your actual domain
 
 // Function to generate a custom unique ID
 const generateUniqueId = (name) => {
@@ -40,8 +40,8 @@ exports.registerEscort = async (req, res) => {
     const uniqueId = generateUniqueId(name);
 
     // Function to format image URLs with domain & folder structure
-    // const formatFileUrl = (filename) => `${BASE_URL}/uploads/${filename}`;
-    const formatFileUrl = (filename) => `/uploads/${filename}`;
+    const formatFileUrl = (filename) => `${BASE_URL}/uploads/${filename}`;
+    // const formatFileUrl = (filename) => `/uploads/${filename}`;
 
     // Save profile photo URL
     const profile_photo = formatFileUrl(`images/${req.files["profile_photo"][0].filename}`);

@@ -1,7 +1,7 @@
 const Escort = require("../models/Escort");
 const { v4: uuidv4 } = require("uuid"); // Generate a unique ID for each escort
 
-const BASE_URL = process.env.BASE_URL; // Change this to your actual domain
+const BASE_URL = "https://escord-backend.onrender.com";
 
 // Function to generate a custom unique ID
 const generateUniqueId = (name) => {

@@ -40,7 +40,8 @@ exports.registerEscort = async (req, res) => {
     const uniqueId = generateUniqueId(name);
 
     // Function to format image URLs with domain & folder structure
-    const formatFileUrl = (filename) => `${BASE_URL}/uploads/${filename}`;
+    // const formatFileUrl = (filename) => `${BASE_URL}/uploads/${filename}`;
+    const formatFileUrl = (filename) => `/uploads/${filename}`;
 
     // Save profile photo URL
     const profile_photo = formatFileUrl(`images/${req.files["profile_photo"][0].filename}`);
@@ -79,27 +80,32 @@ exports.registerEscort = async (req, res) => {
 };
 
 
-// / Filter Escorts by Country, State, or City
+// / Filter Escorts by Country, State, or City (only approved escorts)
 exports.filterEscorts = async (req, res) => {
   try {
     const { country, state, city } = req.query;
-    let filter = {};
+    let filter = { status: "approved" };  // Add the filter for approved escorts
 
+    // Add other filters based on the query parameters
     if (country) filter.country = country;
     if (state) filter.state = state;
     if (city) filter.city = city;
 
+    // Find the escorts that match the filter
     const escorts = await Escort.find(filter);
 
+    // If no escorts are found
     if (!escorts.length) {
-      return res.status(404).json({ message: "No escorts found for the given filter" });
+      return res.status(404).json({ message: "No approved escorts found for the given filter" });
     }
 
-    res.status(200).json({ message: "Filtered escorts retrieved successfully", escorts });
+    // Return the filtered escorts
+    res.status(200).json({ message: "Filtered approved escorts retrieved successfully", escorts });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
 
 // Check Escort Registration Status
 exports.checkEscortStatus = async (req, res) => {
@@ -135,6 +141,25 @@ exports.getAllEscorts = async (req, res) => {
     }
 
     res.status(200).json({ escorts });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// Get all approved escorts
+exports.getApprovedEscorts = async (req, res) => {
+  try {
+    // Find all escorts with status 'approved'
+    const escorts = await Escort.find({ status: "approved" });
+
+    if (!escorts.length) {
+      return res.status(404).json({ message: "No approved escorts found" });
+    }
+
+    res.status(200).json({
+      message: "Approved escorts retrieved successfully",
+      escorts,
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }

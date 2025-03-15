@@ -14,6 +14,9 @@ router.post(
 // Check escort registration status by uniqueId
 router.get("/status/:uniqueId", escortController.checkEscortStatus);
 
+// Get all approved escorts
+router.get("/approved", escortController.getApprovedEscorts);
+
 // Filter escorts
 router.get("/filter", escortController.filterEscorts);
 

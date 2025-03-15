@@ -73,19 +73,24 @@ exports.login = async (req, res) => {
     });
     await refreshTokenSave.save();
     // Set token in HTTP-only cookie
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV,
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
-     // Set token in HTTP-only cookie
-     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV,
-      sameSite: "strict",
-      maxAge: 7 * 60 * 60 * 1000, // 7 day
-    });
+   // Set cookie options based on environment (local or production)
+   const isProduction = process.env.NODE_ENV === 'production';
+
+   // Set accessToken in HTTP-only cookie
+   res.cookie("accessToken", accessToken, {
+     httpOnly: isProduction,
+     secure: isProduction, // Use secure cookies only in production
+     sameSite: isProduction ? 'Strict' : 'Lax', // 'Strict' for production, 'Lax' for localhost
+     maxAge: 24 * 60 * 60 * 1000, // 1 day
+   });
+
+   // Set refreshToken in HTTP-only cookie
+   res.cookie("refreshToken", refreshToken, {
+     httpOnly: isProduction,
+     secure: isProduction, // Use secure cookies only in production
+     sameSite: isProduction ? 'Strict' : 'Lax', // 'Strict' for production, 'Lax' for localhost
+     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+   });
    
     res.status(201).json({ 
       status: "Success",

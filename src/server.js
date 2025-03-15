@@ -6,6 +6,7 @@ const userroutes=require("./routes/UserRoutes")
 const escortRoutes = require("./routes/escortRoutes");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const path=require("path")
 
 dotenv.config();
 connectDB();
@@ -14,6 +15,9 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
+// Serve static files from the "uploads" folder inside "src"
+app.use('/uploads', express.static(path.join(__dirname, 'src', 'uploads')));
+
 
 app.use("/api/users", userroutes);
 app.use("/api/escorts", escortRoutes); // Use Escort routes

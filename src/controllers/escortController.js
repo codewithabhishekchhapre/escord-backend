@@ -100,6 +100,12 @@ exports.registerEscort = async (req, res) => {
 exports.filterEscorts = async (req, res) => {
   try {
     const { country, state, city, service } = req.query;
+    
+    // Ensure at least one of the parameters is provided
+    if (!country && !state && !city && !service) {
+      return res.status(400).json({ message: "At least one of 'country', 'state', 'city', or 'service' is required." });
+    }
+
     let filter = { status: "approved" };  // Filter for approved escorts
 
     // Add filters based on location and service
@@ -129,6 +135,7 @@ exports.filterEscorts = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
 
 // Check Escort Registration Status
 exports.checkEscortStatus = async (req, res) => {

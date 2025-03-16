@@ -28,7 +28,6 @@ exports.signup = async (req, res) => {
         user_id: newUser._id,
         full_name: newUser.fullname,
         email: newUser.email,
-        role:newUser.role,
         mobile:newUser.mobile,
     }});
 } catch (error) {
@@ -99,10 +98,8 @@ exports.login = async (req, res) => {
         user_id: user._id,
         full_name: user.fullname,
         email: user.email,
-        role:user.role,
         accessToken:accessToken,
         refreshToken:refreshToken,
-        isVerified: user.isVerified
     }});  
 
   } catch (error) {

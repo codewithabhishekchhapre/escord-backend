@@ -14,7 +14,6 @@ const generateUniqueId = (name) => {
   return `escort-${sanitized_name}-${letters}${digits}`;
 };
 
-// Register a new escort
 exports.registerEscort = async (req, res) => {
   try {
     const {
@@ -25,15 +24,23 @@ exports.registerEscort = async (req, res) => {
       contact_number,
       whatsapp_number,
       location,
-      country, // ✅ Added country
-      state,   // ✅ Added state
-      city,    // ✅ Added city
+      country,
+      state,
+      city,
       bio,
       weight,
+      services,    // Receive services array from frontend
+      rates         // Receive rate array from frontend
     } = req.body;
 
     if (!req.files || !req.files["profile_photo"]) {
       return res.status(400).json({ message: "Profile photo is required." });
+    }
+
+    // Ensure rates is parsed into an array of objects if it's a string
+    let parsedRates = rates;
+    if (typeof rates === 'string') {
+      parsedRates = JSON.parse(rates);
     }
 
     // Generate a unique ID for the escort
@@ -41,7 +48,6 @@ exports.registerEscort = async (req, res) => {
 
     // Function to format image URLs with domain & folder structure
     const formatFileUrl = (filename) => `${BASE_URL}/uploads/${filename}`;
-    // const formatFileUrl = (filename) => `/uploads/${filename}`;
 
     // Save profile photo URL
     const profile_photo = formatFileUrl(`images/${req.files["profile_photo"][0].filename}`);
@@ -61,14 +67,16 @@ exports.registerEscort = async (req, res) => {
       contact_number,
       whatsapp_number,
       location,
-      country, // ✅ Save country
-      state,   // ✅ Save state
-      city,    // ✅ Save city
+      country,
+      state,
+      city,
       bio,
       weight,
       profile_photo,
       images,
       videos,
+      services,  // Save services array
+      rates: parsedRates,      // Save rate array of objects after parsing
       uniqueId,
     });
 

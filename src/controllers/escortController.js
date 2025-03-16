@@ -107,8 +107,10 @@ exports.filterEscorts = async (req, res) => {
     }
 
     let filter = { status: "approved" };  // Filter for approved escorts
-
-    // Add filters based on location and service
+    console.log(service)
+    if (!country && !state && !city && !service) {
+      return res.status(400).json({ message: "At least one of 'country', 'state', 'city', or 'service' is required."});}
+    // Add filters based on location and service  
     if (country) filter.country = country;
     if (state) filter.state = state;
     if (city) filter.city = city;

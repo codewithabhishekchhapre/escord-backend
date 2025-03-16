@@ -11,7 +11,10 @@ dotenv.config();
 connectDB();
 const app = express();
 const corsOptions = {
-     origin: "https://escort-beta.vercel.app", // Allow your frontend running on localhost:5173
+     origin: [
+          "https://escort-beta.vercel.app", // Vercel origin
+          "http://localhost:5173"           // Local development origin
+        ], // Allow your frontend running on localhost:5173
      methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
      credentials: true, // Allow cookies to be sent along with requests
 };

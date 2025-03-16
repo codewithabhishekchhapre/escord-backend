@@ -6,8 +6,8 @@ const RefreshToken = require("../models/RefreshToken");
 // Create User 
 exports.signup = async (req, res) => {
   try {
-    const { fullname, email, password, mobile ,role} = req.body;
-    const existingUser = await User.findOne({ email });
+    const { username, password ,role} = req.body;
+    const existingUser = await User.findOne({ username });
 
     if (existingUser) {
       return res.status(400).json({
@@ -19,16 +19,14 @@ exports.signup = async (req, res) => {
       });
     } 
     // Save user
-    const newUser = new User({ fullname, email,password,mobile ,role});
+    const newUser = new User({  username, password ,role});
     await newUser.save();
     res.status(201).json({ 
       status: "Success",
       message: "User registered successfully.",
        data: {
         user_id: newUser._id,
-        full_name: newUser.fullname,
-        email: newUser.email,
-        mobile:newUser.mobile,
+        username: newUser.username,
     }});
 } catch (error) {
     res.status(500).json({
@@ -45,10 +43,10 @@ exports.signup = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, mobile, password } = req.body;
+    const { username, password } = req.body;
 
     // Find user by email or mobile
-    const user = await User.findOne({ $or: [{ email }, { mobile }] });
+    const user = await User.findOne({ $or: [{ username }] });
 
     if (!user) {
       return res.status(400).json({status:"failed", message: "User not found" , error: { message: "Invalid credentials" },
@@ -96,8 +94,7 @@ exports.login = async (req, res) => {
       message: "User logged in successfully.",
        data: {
         user_id: user._id,
-        full_name: user.fullname,
-        email: user.email,
+        username: user.username,
         accessToken:accessToken,
         refreshToken:refreshToken,
     }});  

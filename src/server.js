@@ -30,7 +30,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // app.use('/uploads', express.static(path.join(__dirname, 'src', 'uploads')));
 app.get('/', (req, res) => {
-     res.send("Hello Escort");
+     res.send("Hello Escort for deploy");
 });
 app.use("/api/users", userroutes);
 app.use("/api/escorts", escortRoutes); // Use Escort routes

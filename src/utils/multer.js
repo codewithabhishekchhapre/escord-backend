@@ -59,6 +59,6 @@ module.exports = {
   uploadFields: upload.fields([
     { name: "profile_photo", maxCount: 1 }, // Single profile photo
     { name: "images", maxCount: 10 }, // Up to 10 images
-    { name: "videos", maxCount: 5 }, // Up to 5 videos
+    { name: "videos", maxCount: 1 }, // Up to 5 videos
   ]),
 };

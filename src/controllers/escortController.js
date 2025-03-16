@@ -1,5 +1,5 @@
 const Escort = require("../models/Escort");
-const { v4: uuidv4 } = require("uuid"); // Generate a unique ID for each escort
+const { v4: uuidv4 } = require("uuid");
 
 const BASE_URL = "https://escord-backend.onrender.com";
 
@@ -29,18 +29,28 @@ exports.registerEscort = async (req, res) => {
       city,
       bio,
       weight,
-      services,    // Receive services array from frontend
-      rates         // Receive rate array from frontend
+      services,
+      rates
     } = req.body;
 
     if (!req.files || !req.files["profile_photo"]) {
       return res.status(400).json({ message: "Profile photo is required." });
     }
 
+    // Parse services if they are passed as a stringified array
+    let parsedServices = services;
+    if (typeof services === 'string') {
+      try {
+        parsedServices = JSON.parse(services); // Parse the stringified array into a real array
+      } catch (error) {
+        return res.status(400).json({ message: "Invalid services format" });
+      }
+    }
+
     // Ensure rates is parsed into an array of objects if it's a string
     let parsedRates = rates;
     if (typeof rates === 'string') {
-      parsedRates = JSON.parse(rates);
+      parsedRates = JSON.parse(rates); // Parse the stringified array of rates
     }
 
     // Generate a unique ID for the escort
@@ -55,8 +65,8 @@ exports.registerEscort = async (req, res) => {
     // Save multiple images URLs
     const images = req.files["images"] ? req.files["images"].map((file) => formatFileUrl(`images/${file.filename}`)) : [];
 
-    // Save multiple video URLs
-    const videos = req.files["videos"] ? req.files["videos"].map((file) => formatFileUrl(`videos/${file.filename}`)) : [];
+    // Save single video URL (handle only one video)
+    const videos = req.files["videos"] ? [formatFileUrl(`videos/${req.files["videos"][0].filename}`)] : [];
 
     // Save data in MongoDB
     const escort = new Escort({
@@ -75,36 +85,42 @@ exports.registerEscort = async (req, res) => {
       profile_photo,
       images,
       videos,
-      services,  // Save services array
-      rates: parsedRates,      // Save rate array of objects after parsing
+      services: parsedServices,  // Save services array after parsing
+      rates: parsedRates,        // Save rate array of objects after parsing
       uniqueId,
     });
 
     await escort.save();
-    res.status(201).json({ message: "Escort registered successfully", uniqueId: escort.uniqueId });
+    res.status(200).json({ message: "Escort registered successfully", uniqueId: escort.uniqueId });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
-
-// / Filter Escorts by Country, State, or City (only approved escorts)
 exports.filterEscorts = async (req, res) => {
   try {
-    const { country, state, city } = req.query;
-    let filter = { status: "approved" };  // Add the filter for approved escorts
+    const { country, state, city, service } = req.query;
+    let filter = { status: "approved" };  // Filter for approved escorts
 
-    // Add other filters based on the query parameters
+    // Add filters based on location and service
     if (country) filter.country = country;
     if (state) filter.state = state;
     if (city) filter.city = city;
+    if (service) filter.services = { $in: [service] }; // Filter based on services
 
     // Find the escorts that match the filter
     const escorts = await Escort.find(filter);
 
-    // If no escorts are found
+    // If no escorts are found, return a custom message with a 200 status
     if (!escorts.length) {
-      return res.status(404).json({ message: "No approved escorts found for the given filter" });
+      // Check if the problem is due to no matching services or location
+      if (service && !country && !state && !city) {
+        return res.status(200).json({ message: `No escorts found offering the service "${service}"` });
+      } else if (!service && (country || state || city)) {
+        return res.status(200).json({ message: "No escorts found in the specified location" });
+      } else {
+        return res.status(200).json({ message: "No escorts found matching the given filters" });
+      }
     }
 
     // Return the filtered escorts
@@ -113,7 +129,6 @@ exports.filterEscorts = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
-
 
 // Check Escort Registration Status
 exports.checkEscortStatus = async (req, res) => {
@@ -126,7 +141,7 @@ exports.checkEscortStatus = async (req, res) => {
     );
 
     if (!escort) {
-      return res.status(404).json({ message: "Escort not found" });
+      return res.status(200).json({ message: "Escort not found" });
     }
 
     res.status(200).json({ 
@@ -138,14 +153,13 @@ exports.checkEscortStatus = async (req, res) => {
   }
 };
 
-
 // Get all escort registrations (Admin Only)
 exports.getAllEscorts = async (req, res) => {
   try {
     const escorts = await Escort.find();
     
     if (!escorts.length) {
-      return res.status(404).json({ message: "No escorts found" });
+      return res.status(200).json({ message: "No escorts found" });
     }
 
     res.status(200).json({ escorts });
@@ -161,7 +175,7 @@ exports.getApprovedEscorts = async (req, res) => {
     const escorts = await Escort.find({ status: "approved" });
 
     if (!escorts.length) {
-      return res.status(404).json({ message: "No approved escorts found" });
+      return res.status(200).json({ message: "No approved escorts found" });
     }
 
     res.status(200).json({
@@ -172,7 +186,6 @@ exports.getApprovedEscorts = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
-
 
 // Update Escort Status (Admin Only)
 exports.updateEscortStatus = async (req, res) => {
@@ -186,7 +199,7 @@ exports.updateEscortStatus = async (req, res) => {
 
     const escort = await Escort.findById(id);
     if (!escort) {
-      return res.status(404).json({ message: "Escort not found" });
+      return res.status(200).json({ message: "Escort not found" });
     }
 
     escort.status = status;
@@ -197,5 +210,3 @@ exports.updateEscortStatus = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
-
-

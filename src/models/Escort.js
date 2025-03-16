@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const escortSchema = new mongoose.Schema(
   {
     uniqueId: { type: String, required: true, unique: true },
@@ -19,7 +18,7 @@ const escortSchema = new mongoose.Schema(
     images: { type: [String] },
     videos: { type: [String] },
     status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
-    services: { type: [String], required: true },
+    services: { type: [String], required: true },  // Store as an array of strings
     rates: [{                  // Correct definition of rates as an array of objects
       hours: { type: String, required: true },    // You may change this to `Number` if you want hours as a number
       rate: { type: String, required: true }      // Change to `Number` if the rate should be a number

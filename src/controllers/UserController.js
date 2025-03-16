@@ -75,15 +75,15 @@ exports.login = async (req, res) => {
 
    // Set accessToken in HTTP-only cookie
    res.cookie("accessToken", accessToken, {
-     httpOnly: isProduction,
+     httpOnly: !isProduction,
      secure: isProduction, // Use secure cookies only in production
-     sameSite: isProduction ? 'None' : 'Lax', // 'Strict' for production, 'Lax' for localhost
+     sameSite: isProduction ? 'None' : 'None', // 'Strict' for production, 'Lax' for localhost
      maxAge: 24 * 60 * 60 * 1000, // 1 day
    });
 
    // Set refreshToken in HTTP-only cookie
    res.cookie("refreshToken", refreshToken, {
-     httpOnly: isProduction,
+     httpOnly: !isProduction,
      secure: isProduction, // Use secure cookies only in production
      sameSite: isProduction ? 'None' : 'Lax', // 'Strict' for production, 'Lax' for localhost
      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
